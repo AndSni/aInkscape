@@ -1,0 +1,6 @@
+# nothing generated lives in the repo; these are just in case
+*.swp
+*~
+.DS_Store
+/cache/
+/tmp/
