@@ -87,17 +87,42 @@ open, CIELAB-based colour systems that the print industry publishes for free.
 
 ## Install
 
+### Option A — download a release (no git)
+
+Grab `aInkscape-<version>.tar.gz` (or `.zip`) from the
+[**Releases**](https://github.com/AndSni/aInkscape/releases) page, extract it
+anywhere, and run the scripts directly — they are already executable, have no
+bundled data and no fixed location:
+
+```sh
+tar xzf aInkscape-1.0.0.tar.gz        # or: unzip aInkscape-1.0.0.zip
+cd aInkscape-1.0.0
+./illustrator-cs6-inkscape.sh --dry-run
+```
+
+Verify the download against `SHA256SUMS` from the same release:
+
+```sh
+sha256sum -c SHA256SUMS
+```
+
+### Option B — clone the repo
+
 ```sh
 git clone https://github.com/AndSni/aInkscape.git
 cd aInkscape
-./install.sh                 # symlinks the 3 scripts into ~/.local/bin
-```
-
-Or don't install anything and just run them from the clone:
-
-```sh
 ./illustrator-cs6-inkscape.sh --dry-run
 ```
+
+### Put them on your PATH (optional, either option)
+
+```sh
+./install.sh                 # symlinks the 3 scripts into ~/.local/bin
+./install.sh --uninstall     # undo
+```
+
+Without `install.sh` the scripts still run fine from wherever they sit —
+`~/bin`, a USB stick, the extracted folder, anywhere.
 
 Every script supports `--help`, `--dry-run`, `--revert` and `--profile-dir DIR`
 (or the `INKSCAPE_PROFILE_DIR` environment variable) for a non-standard Inkscape
@@ -374,6 +399,9 @@ Issues and pull requests welcome. Please keep the scripts:
 - **idempotent** — safe to run twice;
 - **reversible** — back up before writing, provide a `--revert`;
 - **non-destructive by default** — support `--dry-run`.
+
+Release archives are built with `./make-release.sh` (needs `zip`); the version
+lives in the `VERSION` file.
 
 ---
 
