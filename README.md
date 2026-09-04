@@ -349,8 +349,9 @@ them by hand when you're happy.
 ## Licensing
 
 - **Scripts** (`*.sh`): MIT — see [`LICENSE`](LICENSE).
-- **Colour data**: not included in this repository. `inkscape-print-libraries.sh`
-  downloads it on request and installs it **unmodified**:
+- **Colour data**: not included in this repository (see [`NOTICE`](NOTICE)).
+  `inkscape-print-libraries.sh` downloads it on request and installs it
+  **unmodified**:
   - *HLC Colour Atlas* — © freieFarbe e.V. — **CC BY-ND 4.0**
   - *Open Colour Systems Collection 2.0* — © dtp studio oldenburg — **CC BY-ND 4.0**
 

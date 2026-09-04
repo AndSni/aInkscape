@@ -19,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-NOTE ON THIRD-PARTY COLOUR DATA
-
-This repository contains no colour-library data. The script
-inkscape-print-libraries.sh downloads, at the user's request, the following
-works and installs them unmodified:
-
-  * HLC Colour Atlas - (c) freieFarbe e.V. - CC BY-ND 4.0
-    https://www.freiefarbe.de/en/thema-farbe/hlc-colour-atlas/
-  * Open Colour Systems Collection 2.0 - (c) dtp studio oldenburg - CC BY-ND 4.0
-    https://freiefarbe.de/en/thema-farbe/software/
-
-Their Creative Commons Attribution-NoDerivatives 4.0 terms apply to that data.

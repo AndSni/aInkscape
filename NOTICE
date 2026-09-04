@@ -1,0 +1,36 @@
+aInkscape
+Copyright (c) 2026 AndSni
+Licensed under the MIT License (see LICENSE).
+
+
+THIRD-PARTY COLOUR DATA
+----------------------------------------------------------------------
+
+This repository contains NO colour-library data.
+
+The script `inkscape-print-libraries.sh` downloads, only when the user
+runs it, the following works and installs them unmodified into the
+user's Inkscape profile:
+
+  * HLC Colour Atlas
+    (c) freieFarbe e.V.
+    Licence: CC BY-ND 4.0
+    https://www.freiefarbe.de/en/thema-farbe/hlc-colour-atlas/
+
+  * Open Colour Systems Collection 2.0
+    (c) dtp studio oldenburg
+    Licence: CC BY-ND 4.0
+    https://freiefarbe.de/en/thema-farbe/software/
+
+The Creative Commons Attribution-NoDerivatives 4.0 International terms
+apply to that data:
+https://creativecommons.org/licenses/by-nd/4.0/
+
+CC BY-ND 4.0 permits verbatim redistribution, including commercially,
+with attribution; it does not permit distributing modified colour data.
+The script installs the files as-is and writes an attribution file
+alongside them.
+
+Not downloaded or included, because they are trademarked and cannot be
+redistributed: Pantone, RAL, TOYO, DIC, HKS colour books (beyond the
+independently measured CIELAB values in OCSC), Focoltone, Trumatch.
