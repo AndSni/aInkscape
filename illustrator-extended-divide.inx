@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <name>Extended Divide</name>
+  <id>com.andsni.ainkscape.illustrator_extended_divide</id>
+  <param name="flatness" type="float" precision="2" min="0.01" max="1000.0"
+         gui-text="Curve smoothness (lower = more accurate, slower):">0.2</param>
+  <param name="remove-uncolored" type="bool"
+         gui-text="Remove faces with no fill and no stroke">false</param>
+  <param name="merge-by-color" type="bool"
+         gui-text="Merge faces that share the same fill colour (Union by colour)">false</param>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu name="Illustrator Compatibility"/>
+    </effects-menu>
+    <menu-tip>Slice all selected overlapping shapes (groups included) into non-overlapping faces (Illustrator Pathfinder &gt; Divide, extended)</menu-tip>
+  </effect>
+  <script>
+    <command location="inx" interpreter="python">illustrator-extended-divide.py</command>
+  </script>
+</inkscape-extension>

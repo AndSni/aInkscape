@@ -1,11 +1,11 @@
 # aInkscape — make Inkscape feel like Adobe Illustrator
 
-**aInkscape** is a small set of shell scripts that reconfigure **Inkscape 1.4.x** for
-designers moving over from **Adobe Illustrator** (CS6 and later) who have years of
-keyboard **muscle memory** and expect real **CMYK colour swatches** and
-**print-industry colour libraries**.
+**aInkscape** reconfigures **Inkscape 1.4.x** for designers moving over from
+**Adobe Illustrator** (CS6 and later) who have years of keyboard **muscle
+memory**, expect real **CMYK colour swatches** and **print-industry colour
+libraries**, and are missing Illustrator's **Pathfinder > Divide**.
 
-It does three things:
+It does four things:
 
 1. **Illustrator keyboard shortcuts** — switches Inkscape to the shipped *Adobe
    Illustrator* keymap and adds the CS6 shortcuts that map is missing
@@ -18,9 +18,16 @@ It does three things:
    and the **Open Colour Systems Collection** (HKS, offset & screen printing inks,
    paper whites, DIN 6164, British/Australian Standard…): a free, redistributable
    **Pantone / RAL alternative** built on CIELAB.
+4. **Extended Divide** — an Inkscape Extensions-menu command that slices
+   overlapping selected shapes (groups included) into every distinct face,
+   each keeping its own fill, grouped together — the one Illustrator
+   operation Inkscape's own *Path > Division* doesn't replicate — plus two
+   opt-in cleanup toggles Illustrator itself doesn't have.
 
-Every script is **idempotent**, **backs up** what it changes, and has a **`--revert`**.
-Nothing is sent anywhere; the only network access is script 3 downloading the
+The three shell scripts (1–3) are **idempotent**, **back up** what they change,
+and have a **`--revert`**. The Divide extension (4) is a live Inkscape plugin —
+it changes only the open document, undone the normal way with `Ctrl+Z`. Nothing
+is sent anywhere; the only network access is script 3 downloading the
 Creative-Commons colour archives from freiefarbe.de.
 
 - Developed on **Fedora Linux** with **Inkscape 1.4.4**. Should work on any Linux
@@ -39,6 +46,7 @@ Creative-Commons colour archives from freiefarbe.de.
 - [1. `illustrator-cs6-inkscape.sh` — Illustrator keymap & behaviour](#1-illustrator-cs6-inkscapesh--illustrator-keymap--behaviour)
 - [2. `inkscape-ai-swatches.sh` — Illustrator-style CMYK / RGB swatches](#2-inkscape-ai-swatchessh--illustrator-style-cmyk--rgb-swatches)
 - [3. `inkscape-print-libraries.sh` — open print colour libraries](#3-inkscape-print-librariessh--open-print-colour-libraries)
+- [4. `illustrator-extended-divide.py` — Extended Divide](#4-illustrator-extended-dividepy--extended-divide)
 - [What gets changed on disk](#what-gets-changed-on-disk)
 - [Reverting / uninstalling](#reverting--uninstalling)
 - [Known limitations](#known-limitations)
@@ -53,7 +61,7 @@ Creative-Commons colour archives from freiefarbe.de.
 ## Why this exists
 
 If you have spent a decade or two in Adobe Illustrator and then switch to Inkscape,
-three things break your flow immediately:
+four things break your flow immediately:
 
 - **The keyboard is wrong.** `V`/`A` selection, `Ctrl+F`/`Ctrl+B` paste, Create
   Outlines, Lock, Hide, Shape Builder, the Artboard tool — the keys are different
@@ -64,26 +72,38 @@ three things break your flow immediately:
 - **Pantone is gone.** Adobe removed Pantone books from Illustrator in 2022 for
   licensing reasons; Inkscape never had them. Pantone, RAL, TOYO, DIC, Focoltone
   and Trumatch are all trademarked and cannot legally be bundled by anyone.
+- **No Pathfinder Divide.** Inkscape's *Path > Division* only cuts one path
+  with another (2 objects, one survives); Illustrator's Divide slices any
+  number of overlapping shapes into every face at once.
 
-aInkscape fixes the first two directly and answers the third with the genuinely
-open, CIELAB-based colour systems that the print industry publishes for free.
+aInkscape fixes the keyboard and swatches directly, answers Pantone with the
+genuinely open, CIELAB-based colour systems the print industry publishes for
+free, and adds Divide as a real Inkscape extension.
 
 ## What's in the box
 
-| Script | What it does | What it touches | Reversible |
+| Tool | What it does | What it touches | Reversible |
 |---|---|---|---|
 | `illustrator-cs6-inkscape.sh` | Selects the Adobe Illustrator keymap, installs a `keys/default.xml` override with the missing CS6 shortcuts, patches Illustrator-like behaviour (nudge, rotate snap, zoom step, no stroke scaling, dark UI…) | `preferences.xml`, `keys/default.xml` | `--revert` (timestamped backup) |
 | `inkscape-ai-swatches.sh` | Installs *Illustrator CMYK* + *CMYK Tints* (true `.ase` CMYK) and *Illustrator RGB* (`.gpl`) palettes; optional CMYK soft-proof setup | `palettes/`, optionally `preferences.xml` | `--revert` (timestamped backup) |
 | `inkscape-print-libraries.sh` | Downloads & installs HLC Colour Atlas + Open Colour Systems Collection print palettes | `palettes/` only | `--revert` (manifest-tracked) |
-| `install.sh` | Symlinks the three scripts into a `bin` dir on your `PATH` | `~/.local/bin` | `./install.sh --uninstall` |
+| `illustrator-extended-divide.py` + `.inx` | Extensions-menu command: Illustrator Pathfinder-Divide equivalent, with remove-uncoloured & merge-by-colour toggles | Only the open document (native Inkscape undo) | `Ctrl+Z` in Inkscape |
+| `install.sh` | Symlinks the 3 CLI scripts into a `bin` dir on your `PATH`, and the Divide extension into Inkscape's extensions folder | `~/.local/bin`, `~/.config/inkscape/extensions/` | `./install.sh --uninstall` |
 
 ## Requirements
 
 - **Inkscape 1.4.x** (tested on 1.4.4). The native distro package is recommended.
-- **bash**, **python3** (standard library only — no pip packages), **coreutils**.
+- **bash**, **python3** (standard library only), **coreutils** — for the 3 CLI
+  scripts (`illustrator-cs6-inkscape.sh`, `inkscape-ai-swatches.sh`,
+  `inkscape-print-libraries.sh`). These stay dependency-free.
 - **curl** and **unzip** — only for `inkscape-print-libraries.sh`.
-- **Quit Inkscape before running any script.** Inkscape rewrites `preferences.xml`
-  on exit and would overwrite the changes.
+- **`pyclipper`** (third-party Python package) — only for `illustrator-extended-divide.py`,
+  the one component with a real runtime dependency; see
+  [section 4](#4-illustrator-extended-dividepy--extended-divide) for the install command.
+- **Quit Inkscape before running any of the 3 CLI scripts.** Inkscape rewrites
+  `preferences.xml` on exit and would overwrite the changes. (Installing the
+  Divide extension itself is fine with Inkscape open — it just needs a restart
+  to show up in the menu, since extensions are only scanned at startup.)
 
 ## Install
 
@@ -117,7 +137,7 @@ cd aInkscape
 ### Put them on your PATH (optional, either option)
 
 ```sh
-./install.sh                 # symlinks the 3 scripts into ~/.local/bin
+./install.sh                 # symlinks the 3 CLI scripts + Divide extension
 ./install.sh --uninstall     # undo
 ```
 
@@ -291,6 +311,95 @@ then run `inkscape-ai-swatches.sh --color-management`.
 
 ---
 
+## 4. `illustrator-extended-divide.py` — Extended Divide
+
+### What it does
+
+Select 2 or more overlapping shapes and run **Extensions → Illustrator
+Compatibility → Extended Divide**. For every shape, ordered top → bottom
+`O1 .. On`:
+
+```
+Face(O1) = O1
+Face(Oi) = Oi − Union(O1 .. O(i-1))      for i > 1
+```
+
+Each face keeps its source shape's fill and stroke. A face with disjoint
+regions becomes separate objects; a hole stays a sub-path of its object
+unless another shape sits inside that hole, in which case the inner shape
+becomes its own object again (arbitrary nesting is handled). Results are
+grouped into one new `<g>`, matching Illustrator.
+
+**Groups in the selection are flattened**, not treated as one object: every
+shape inside is unpacked (recursively, so nested groups work too) into its
+correct place in the overall stacking order before dividing, and any group
+left empty afterwards is removed. Groups that still contain something the
+tool skipped (text, images) are left in place.
+
+Two toggles, both off by default (plain Illustrator-equivalent behaviour):
+
+- **Remove faces with no fill and no stroke** — drops source objects that
+  are `fill:none` *and* `stroke:none` entirely, before they're divided *or*
+  before they get a chance to occlude anything below them. Useful for
+  cleaning up invisible guide/bounding-box rectangles that a real
+  Illustrator Divide also leaves behind as clutter.
+- **Merge faces that share the same fill colour** — after dividing, unions
+  every resulting face with an identical fill into **one** compound-path
+  object per colour (Illustrator's "Select Same Fill Colour, then Unite",
+  automated). Unlike Divide's own one-object-per-disjoint-region rule, a
+  merged colour group stays a single object even when its pieces don't
+  touch — same as running Illustrator's Pathfinder Unite by hand.
+
+### Requirements
+
+Needs the third-party `pyclipper` package (Clipper polygon-boolean library) —
+`inkex` has no path-boolean operations of its own, and shelling out to a
+second `inkscape` process to reuse its native engine isn't viable (it
+crashes with a `Gio::Error`/`GApplication` single-instance conflict while
+the GUI is already open, which is exactly when an Extensions-menu command
+runs). Install it once:
+
+```sh
+pip install --user --break-system-packages pyclipper
+```
+
+`--break-system-packages` is needed on Fedora and other PEP 668
+"externally managed environment" distros. If Inkscape reports
+`ModuleNotFoundError: pyclipper` after this, check that `pip`'s target
+Python is the same `python3` Inkscape's extension host invokes — untested
+on the Flatpak build, whose Python is sandboxed separately.
+
+### Install
+
+`./install.sh` symlinks `illustrator-extended-divide.py`/`.inx` into
+`~/.config/inkscape/extensions/`. **Restart Inkscape** — extensions are only
+scanned at startup, this one won't appear from a running session.
+
+### Usage
+
+Select ≥ 2 overlapping objects (groups OK) → **Extensions → Illustrator
+Compatibility → Extended Divide** → adjust "Curve smoothness" if curves look
+faceted or it's slow on complex art, tick either toggle as needed. Undo with
+`Ctrl+Z` like any other Inkscape operation.
+
+### Limitations
+
+- **Curves become polygon approximations.** The only geometry engine
+  reachable from an in-process Python extension is a polygon-boolean
+  library, not Inkscape's native bezier engine — every curve is flattened
+  to short straight segments first. At a fine "Curve smoothness" setting
+  this is visually indistinguishable, but the output is never true beziers.
+  This is permanent, not a bug to be fixed later.
+- **Text and images in the selection are skipped**, with a count reported
+  in the Extensions output console — not silently dropped, not a crash.
+- **No live-GUI testing during development** — a second real `inkscape`
+  process can't safely run alongside an already-open instance (see
+  Requirements above), so this tool was verified with a standalone
+  headless test harness (hand-built SVGs, shoelace-formula area checks,
+  no rendering) rather than clicking through the Extensions menu.
+
+---
+
 ## In Inkscape after installing
 
 - **Keyboard:** *Edit → Preferences → Interface → Keyboard* — the shortcut file
@@ -300,6 +409,7 @@ then run `inkscape-ai-swatches.sh --color-management`.
   *OCSC - HKS N 3000plus*, …
 - **Colour picker mode:** *Fill & Stroke* (`Shift+Ctrl+F`) — the colour picker has
   a menu to switch the wheel/sliders to **CMYK**, RGB, HSL, OKLCH, …
+- **Extended Divide:** *Extensions → Illustrator Compatibility → Extended Divide*.
 
 ## What gets changed on disk
 
@@ -314,9 +424,14 @@ palettes/Illustrator-RGB.gpl            # script 2
 palettes/HLC Colour Atlas.ase           # script 3
 palettes/OCSC - *.ase                   # script 3
 palettes/.print-libraries-manifest      # script 3  (revert list)
+extensions/illustrator-extended-divide.py    # script 4 (symlink)
+extensions/illustrator-extended-divide.inx   # script 4 (symlink)
 cs6-backup-<timestamp>/                 # script 1  (preferences.xml + keys/)
 swatch-backup-<timestamp>/              # script 2  (palettes/ + preferences.xml)
 ```
+
+Script 4 never touches your profile beyond those two symlinked files — running
+it only ever edits the currently open document, through Inkscape's own undo.
 
 ## Reverting / uninstalling
 
@@ -324,7 +439,7 @@ swatch-backup-<timestamp>/              # script 2  (palettes/ + preferences.xml
 illustrator-cs6-inkscape.sh --revert     # restore prefs + keymap from newest backup
 inkscape-ai-swatches.sh --revert         # restore palettes + prefs from newest backup
 inkscape-print-libraries.sh --revert     # delete the downloaded palettes
-./install.sh --uninstall                 # remove the ~/.local/bin symlinks
+./install.sh --uninstall                 # remove the ~/.local/bin + extensions symlinks
 ```
 
 The backup folders (`cs6-backup-*`, `swatch-backup-*`) are left in place — delete
@@ -345,15 +460,19 @@ them by hand when you're happy.
   and cannot be redistributed. Use the vendor's own plug-in or files.
 - **Flatpak:** the profile is auto-detected, but script 1's clean-install path
   needs `inkscape` on your `PATH` to generate a default `preferences.xml`.
+- **Extended Divide always outputs straight-segment polygons**, never true
+  beziers — see its own Limitations above.
 
 ## Compatibility
 
 - **Inkscape 1.4.x** — developed and tested against 1.4.4 on Fedora 44.
 - **Inkscape 1.1–1.3** — the keymap override and most preference keys should work;
   ASE import needs ≥ 1.1; LAB ASE needs a recent 1.x. Untested.
-- **Inkscape 0.92 and earlier** — not supported (different action names, no ASE).
+- **Inkscape 0.92 and earlier** — not supported (different action names, no ASE,
+  no `inkex.EffectExtension` API Extended Divide relies on).
 - **Linux** — any distro. `curl`, `unzip`, `python3`, `bash` are the only
-  non-Inkscape dependencies.
+  non-Inkscape dependencies for scripts 1–3; `pyclipper` additionally for
+  Extended Divide.
 - **macOS** — untested; try
   `--profile-dir "$HOME/Library/Application Support/org.inkscape.Inkscape"`.
 
@@ -370,10 +489,24 @@ them by hand when you're happy.
   signature, big-endian block list, colour blocks carrying a `RGB `, `CMYK`,
   `LAB ` or `Gray` model tag and IEEE-754 floats. `inkscape-ai-swatches.sh`
   generates one directly; Inkscape 1.4 reads all four models.
+- **Extended Divide** flattens every selected shape's curves to a polygon
+  (`inkex.bezier.cspsubdiv`, ancestor transforms baked in via
+  `element.composed_transform()`), then processes objects top → bottom with
+  [pyclipper](https://github.com/fonttools/pyclipper) (`Execute2` for the
+  hole/nesting-aware tree, a running `Union` as the "everything above"
+  occluder), and reconstructs Illustrator-style compound-path objects from
+  each result's `PyPolyNode` tree (even nesting depth = a new object, its
+  odd-depth children = holes of that same object). Verified with a
+  standalone headless test harness (exact and analytic-tolerance area
+  checks via the shoelace formula, an independently-computed transform
+  oracle, and a dedicated regression test for the fill-rule-correct
+  occluder fold) rather than interactive testing, for the reason given in
+  its own Limitations section above.
 
 ## Licensing
 
-- **Scripts** (`*.sh`): MIT — see [`LICENSE`](LICENSE).
+- **Scripts and the extension** (`*.sh`, `illustrator-extended-divide.py`/`.inx`):
+  MIT — see [`LICENSE`](LICENSE).
 - **Colour data**: not included in this repository (see [`NOTICE`](NOTICE)).
   `inkscape-print-libraries.sh` downloads it on request and installs it
   **unmodified**:
@@ -382,6 +515,8 @@ them by hand when you're happy.
 
   CC BY-ND 4.0 permits verbatim redistribution, including commercially, with
   attribution; it does **not** permit distributing modified colour data.
+- **`pyclipper`**: not included either (installed separately by the user) —
+  MIT-licensed Cython wrapper around Angus Johnson's Clipper library.
 
 ## Credits
 
@@ -390,15 +525,22 @@ them by hand when you're happy.
   Colour Systems Collection release.
 - [dtp studio oldenburg](https://www.dtpstudio.de/) — the OCSC measurements.
 - [ECI](https://www.eci.org/) — free offset-printing ICC profiles.
+- [pyclipper](https://github.com/fonttools/pyclipper) / Angus Johnson's
+  Clipper — the polygon-boolean engine behind Extended Divide.
 
 ## Contributing
 
-Issues and pull requests welcome. Please keep the scripts:
+Issues and pull requests welcome. Please keep:
 
-- **bash + POSIX tools + standard-library python3** only — no runtime dependencies;
-- **idempotent** — safe to run twice;
-- **reversible** — back up before writing, provide a `--revert`;
-- **non-destructive by default** — support `--dry-run`.
+- the 3 shell scripts **dependency-free** — bash + POSIX tools + standard-library
+  python3 only. `illustrator-extended-divide.py` is the one sanctioned exception
+  (a real Inkscape Python extension, not a config-patching script) and its one
+  dependency (`pyclipper`) should stay that way — don't add more without a strong
+  reason;
+- everything **idempotent** — safe to run twice;
+- the 3 shell scripts **reversible** — back up before writing, provide a
+  `--revert` (the extension relies on Inkscape's native undo instead, by design);
+- the 3 shell scripts **non-destructive by default** — support `--dry-run`.
 
 Release archives are built with `./make-release.sh` (needs `zip`); the version
 lives in the `VERSION` file.
