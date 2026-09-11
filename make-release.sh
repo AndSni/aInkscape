@@ -16,6 +16,8 @@ FILES=(
   illustrator-cs6-inkscape.sh
   inkscape-ai-swatches.sh
   inkscape-print-libraries.sh
+  illustrator-extended-divide.py
+  illustrator-extended-divide.inx
   install.sh
   README.md
   LICENSE
@@ -27,8 +29,9 @@ command -v zip >/dev/null 2>&1 || { echo "error: zip not found" >&2; exit 1; }
 rm -rf "${OUT:?}/$NAME"
 mkdir -p "$OUT/$NAME"
 cp -p "${FILES[@]}" "$OUT/$NAME/"
-chmod 0755 "$OUT/$NAME"/*.sh
-chmod 0644 "$OUT/$NAME"/README.md "$OUT/$NAME"/LICENSE "$OUT/$NAME"/NOTICE
+chmod 0755 "$OUT/$NAME"/*.sh "$OUT/$NAME"/illustrator-extended-divide.py
+chmod 0644 "$OUT/$NAME"/illustrator-extended-divide.inx \
+           "$OUT/$NAME"/README.md "$OUT/$NAME"/LICENSE "$OUT/$NAME"/NOTICE
 
 # Reproducible-ish: sorted entries, no owner names, timestamp pinned to last commit.
 MTIME="@$(git log -1 --format=%ct 2>/dev/null || echo 946684800)"
